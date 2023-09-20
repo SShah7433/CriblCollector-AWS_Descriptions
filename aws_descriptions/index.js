@@ -5,7 +5,7 @@ exports.disabled = false;
 exports.destroyable = false;
 
 const { Readable, Transform } = require("stream");
-const logger = C.util.getLogger("test-collector");
+const logger = C.util.getLogger("aws-description-collector");
 
 const {
   CloudFrontClient,
@@ -13,23 +13,47 @@ const {
 } = require("./node_modules/@aws-sdk/client-cloudfront");
 
 const {
-  ElasticLoadBalancingClient,
-  paginateDescribeLoadBalancers,
-} = require("./node_modules/@aws-sdk/client-elastic-load-balancing");
-
-const {
   EC2Client,
-
   DescribeAddressesCommand,
   DescribeKeyPairsCommand,
+  DescribeRegionsCommand,
   DescribeReservedInstancesCommand,
-
   paginateDescribeImages,
   paginateDescribeInstances,
+  paginateDescribeNetworkAcls,
   paginateDescribeSecurityGroups,
   paginateDescribeSnapshots,
+  paginateDescribeSubnets,
   paginateDescribeVolumes,
+  paginateDescribeVpcs
 } = require("./node_modules/@aws-sdk/client-ec2");
+
+// imports prepended with ELB to indicate v1
+const {
+  ElasticLoadBalancingClient: ELB_ElasticLoadBalancingClient,
+  DescribeInstanceHealthCommand: ELB_DescribeInstanceHealthCommand,
+  DescribeTagsCommand: ELB_DescribeTagsCommand,
+  paginateDescribeLoadBalancers: ELB_paginateDescribeLoadBalancers,
+} = require("./node_modules/@aws-sdk/client-elastic-load-balancing");
+
+// imports prepended with ELBv2 to indicate v2
+const {
+  ElasticLoadBalancingClient: ELBv2_ElasticLoadBalancingClient,
+  DescribeTagsCommand: ELBv2_DescribeTagsCommand,
+  DescribeTargetHealthCommand: ELBv2_DescribeTargetHealthCommand,
+  paginateDescribeListeners: ELBv2_paginateDescribeListeners,
+  paginateDescribeLoadBalancers: ELBv2_paginateDescribeLoadBalancers,
+  paginateDescribeTargetGroups: ELBv2_paginateDescribeTargetGroups
+} = require("./node_modules/@aws-sdk/client-elastic-load-balancing-v2");
+
+const {
+  IAMClient,
+  paginateListAttachedUserPolicies,
+  paginateListGroups,
+  paginateListPolicies,
+  paginateListRoles,
+  paginateListUsers
+} = require("./node_modules/@aws-sdk/client-iam");
 
 const {
   LambdaClient,
@@ -41,6 +65,11 @@ const {
   paginateDescribeDBInstances,
   paginateDescribeReservedDBInstances,
 } = require("./node_modules/@aws-sdk/client-rds");
+
+const {
+  S3Client,
+  ListBucketsCommand
+} = require("./node_modules/@aws-sdk/client-s3")
 
 let batch_size;
 let regions;
@@ -85,114 +114,134 @@ exports.collect = async (collectible, job) => {
     }
   }
 
-  var paginatorConfig = null;
-  var commandParams = null;
-  var paginator = null;
+  var clientConfig = { region: collectible.region }
+  var commandConfig = {};
+  var paginatorConfig = { pageSize: batch_size };
 
   var client = null;
   var command = null;
+  var paginator = null;
 
   switch (collectible.endpoint) {
     case "cloudfront_listDistributions":
-      paginatorConfig = {
-        client: new CloudFrontClient({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateListDistributions(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new CloudFrontClient(clientConfig)});
+      paginator = paginateListDistributions(paginatorConfig, commandConfig);
       break;
     case "ec2_describeAddresses":
-      commandParams = {};
-      client = new EC2Client({ region: collectible.region })
-      command = new DescribeAddressesCommand(commandParams);
+      client = new EC2Client(clientConfig)
+      command = new DescribeAddressesCommand(commandConfig);
       break;
     case "ec2_describeImages":
-      paginatorConfig = {
-        client: new EC2Client({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeImages(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeImages(paginatorConfig, commandConfig);
       break;
     case "ec2_describeInstances":
-      paginatorConfig = {
-        client: new EC2Client({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeInstances(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeInstances(paginatorConfig, commandConfig);
       break;
     case "ec2_describeKeyPairs":
-      commandParams = {};
-      client = new EC2Client({ region: collectible.region })
-      command = new DescribeKeyPairsCommand(commandParams);
+      client = new EC2Client(clientConfig);
+      command = new DescribeKeyPairsCommand(commandConfig);
+      break;
+    case "ec2_describeNetworkAcls":
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeNetworkAcls(paginatorConfig, commandConfig);
+      break;
+    case "ec2_describeRegions":
+      client = new EC2Client(clientConfig);
+      command = new DescribeRegionsCommand(commandConfig);
       break;
     case "ec2_describeReservedInstances":
-      commandParams = {};
-      client = new EC2Client({ region: collectible.region })
-      command = new DescribeReservedInstancesCommand(commandParams);
+      client = new EC2Client(clientConfig)
+      command = new DescribeReservedInstancesCommand(commandConfig);
       break;
     case "ec2_describeSecurityGroups":
-      paginatorConfig = {
-        client: new EC2Client({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeSecurityGroups(
-        paginatorConfig,
-        commandParams
-      );
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeSecurityGroups(paginatorConfig, commandConfig);
       break;
     case "ec2_describeSnapshots":
-      paginatorConfig = {
-        client: new EC2Client({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeSnapshots(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeSnapshots(paginatorConfig, commandConfig);
+      break;
+    case "ec2_describeSubnets":
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeSubnets(paginatorConfig, commandConfig)
       break;
     case "ec2_describeVolumes":
-      paginatorConfig = {
-        client: new EC2Client({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeVolumes(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeVolumes(paginatorConfig, commandConfig);
+      break;
+    case "ec2_describeVpcs":
+      Object.assign(paginatorConfig, {client: new EC2Client(clientConfig)});
+      paginator = paginateDescribeVpcs(paginatorConfig, commandConfig)
+      break;
+    case "elb_describeInstanceHealth":
+      client = new ELB_ElasticLoadBalancingClient(clientConfig);
+      command = new ELB_DescribeInstanceHealthCommand(commandConfig);
       break;
     case "elb_describeLoadBalancers":
-      paginatorConfig = {
-        client: new ElasticLoadBalancingClient({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeLoadBalancers(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new ELB_ElasticLoadBalancingClient(clientConfig)});
+      paginator = ELB_paginateDescribeLoadBalancers(paginatorConfig, commandConfig);
+      break;
+    case "elb_describeTags":
+      client = new ELB_ElasticLoadBalancingClient(clientConfig);
+      command = new ELB_DescribeTagsCommand(commandConfig);
+      break;
+    case "elbv2_describeListeners":
+      Object.assign(paginatorConfig, {client: new ELBv2_ElasticLoadBalancingClient(clientConfig)});
+      paginator = ELBv2_paginateDescribeListeners(paginatorConfig, commandConfig);
+      break;
+    case "elbv2_describeLoadBalancers":
+      Object.assign(paginatorConfig, {client: new ELBv2_ElasticLoadBalancingClient(clientConfig)});
+      paginator = ELBv2_paginateDescribeLoadBalancers(paginatorConfig, commandConfig);
+      break;
+    case "elbv2_describeTags":
+      client = new ELBv2_ElasticLoadBalancingClient(clientConfig);
+      command = new ELBv2_DescribeTagsCommand(commandConfig)
+      break;
+    case "elbv2_describeTargetGroups":
+      Object.assign(paginatorConfig, {client: new ELBv2_ElasticLoadBalancingClient(clientConfig)});
+      paginator = ELBv2_paginateDescribeTargetGroups(paginatorConfig, commandConfig);
+      break;
+    case "elbv2_describeTargetHealth":
+      client = new ELBv2_ElasticLoadBalancingClient(clientConfig);
+      command = new ELBv2_DescribeTargetHealthCommand(commandConfig);
+      break;
+    case "iam_listAttachedUserPolicies":
+      Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
+      command = new paginateListAttachedUserPolicies(paginatorConfig, commandConfig);
+      break;
+    case "iam_listGroups":
+      Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
+      command = new paginateListGroups(paginatorConfig, commandConfig);
+      break;
+    case "iam_listPolicies":
+      Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
+      command = new paginateListPolicies(paginatorConfig, commandConfig);
+      break;
+    case "iam_listRoles":
+      Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
+      command = new paginateListRoles(paginatorConfig, commandConfig);
+      break;
+    case "iam_listUsers":
+      Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
+      command = new paginateListUsers(paginatorConfig, commandConfig);
       break;
     case "lambda_listFunctions":
-      paginatorConfig = {
-        client: new LambdaClient({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateListFunctions(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new LambdaClient(clientConfig)});
+      paginator = paginateListFunctions(paginatorConfig, commandConfig);
       break;
     case "rds_describeDbInstances":
-      paginatorConfig = {
-        client: new RDSClient({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeDBInstances(paginatorConfig, commandParams);
+      Object.assign(paginatorConfig, {client: new RDSClient(clientConfig)});
+      paginator = paginateDescribeDBInstances(paginatorConfig, commandConfig);
       break;
     case "rds_describeReservedDbInstances":
-      paginatorConfig = {
-        client: new RDSClient({ region: collectible.region }),
-        pageSize: batch_size,
-      };
-      commandParams = {};
-      paginator = paginateDescribeReservedDBInstances(
-        paginatorConfig,
-        commandParams
-      );
+      Object.assign(paginatorConfig, {client: new RDSClient(clientConfig)});
+      paginator = paginateDescribeReservedDBInstances(paginatorConfig, commandConfig);
+      break;
+    case "s3_listBuckets":
+      client = new S3Client(clientConfig);
+      command = ListBucketsCommand(commandConfig);
       break;
   }
 
