@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "title": "",
+  "required": ["endpoints", "regions"],
+  "properties": {
+    "endpoints": {
+      "type": "array",
+      "title": "Endpoints",
+      "description": "AWS API Endpoints to collect",
+      "minLength": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "cloudfront_listDistributions",
+          "ec2_describeAddresses",
+          "ec2_describeImages",
+          "ec2_describeInstances",
+          "ec2_describeKeyPairs",
+          "ec2_describeReservedInstances",
+          "ec2_describeSecurityGroups",
+          "ec2_describeSnapshots",
+          "ec2_describeVolumes",
+          "elb_describeLoadBalancers",
+          "lambda_listFunctions",
+          "rds_describeDbInstances",
+          "rds_describeReservedDbInstances"
+        ],
+        "enumNames": [
+          "CloudFront - List Distributions",
+          "EC2 - Describe Addresses",
+          "EC2 - Describe Images",
+          "EC2 - Describe Instances",
+          "EC2 - Describe Key Pairs",
+          "EC2 - Describe Reserved Instances",
+          "EC2 - Describe Security Groups",
+          "EC2 - Describe Snapshots",
+          "EC2 - Describe Volumes",
+          "ELB - Describe Load Balancers",
+          "Lambda - List Functions",
+          "RDS - Describe DB Instances",
+          "RDS - Describe Reserved DB Instances"
+        ]
+      }
+    },
+    "regions": {
+      "type": "array",
+      "title": "AWS Regions",
+      "description": "AWS Region from which to retrieve data.",
+      "minLength": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "us-east-1",
+          "us-east-2",
+          "us-west-1",
+          "us-west-2",
+          "af-south-1",
+          "ca-central-1",
+          "eu-west-1",
+          "eu-central-1",
+          "eu-west-2",
+          "eu-south-1",
+          "eu-west-3",
+          "eu-north-1",
+          "ap-east-1",
+          "ap-northeast-1",
+          "ap-northeast-2",
+          "ap-southeast-1",
+          "ap-southeast-2",
+          "ap-south-1",
+          "me-south-1",
+          "sa-east-1",
+          "us-gov-east-1",
+          "us-gov-west-1"
+        ],
+        "enumNames": [
+          "US East (N. Virginia)",
+          "US East (Ohio)",
+          "US West (N. California)",
+          "US West (Oregon)",
+          "Africa (Cape Town)",
+          "Canada (Central)",
+          "EU (Ireland)",
+          "EU (Frankfurt)",
+          "EU (London)",
+          "EU (Milan)",
+          "EU (Paris)",
+          "EU (Stockholm)",
+          "Asia Pacific (Hong Kong)",
+          "Asia Pacific (Tokyo)",
+          "Asia Pacific (Seoul)",
+          "Asia Pacific (Singapore)",
+          "Asia Pacific (Sydney)",
+          "Asia Pacific (Mumbai)",
+          "Middle East (Bahrain)",
+          "South America (São Paulo)",
+          "US Gov East 1",
+          "US Gov West 1"
+        ]
+      }
+    },
+    "batch_size": {
+      "type": "number",
+      "title": "API Batch Size",
+      "description": "Number of results to pull per API call (does not apply to endpoints that do not support pagination)"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "outputName": {
+    "ui:widget": "OutputName",
+    "ui:forceRender": true,
+    "ui:options": {
+      "outputType": "aws_api",
+      "outputProps": {
+        "region": "region",
+        "endpoints": "endpoints",
+        "batch_size": "batch_size"
+      }
+    }
+  }
+}

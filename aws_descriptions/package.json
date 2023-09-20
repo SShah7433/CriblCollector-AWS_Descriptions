@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.414.0",
+    "@aws-sdk/client-ec2": "^3.416.0",
+    "@aws-sdk/client-elastic-load-balancing": "^3.414.0",
+    "@aws-sdk/client-lambda": "^3.414.0",
+    "@aws-sdk/client-rds": "^3.414.0"
+  }
+}
