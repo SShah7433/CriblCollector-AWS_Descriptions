@@ -1,13 +1,91 @@
 {
-  "outputName": {
-    "ui:widget": "OutputName",
-    "ui:forceRender": true,
+  "awsAuthenticationMethod": {
+    "ui:widget": "Radio",
     "ui:options": {
-      "outputType": "aws_api",
-      "outputProps": {
-        "region": "region",
-        "endpoints": "endpoints",
-        "batch_size": "batch_size"
+      "uiEnumOptions": [
+        {
+          "value": "auto",
+          "label": "Auto",
+          "description": "Will use environment variables AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, or the attached IAM role. Will work only when running on AWS."
+        },
+        {
+          "value": "manual",
+          "label": "Manual",
+          "description": "Enter access key and secret key. Required when not running on AWS."
+        },
+        {
+          "value": "secret",
+          "label": "Secret",
+          "description": "Use a secret that references AWS access key and secret key."
+        }
+      ],
+      "toggle": true
+    }
+  },
+  "awsApiKey": {
+    "ui:placeholder": "Enter access key (optional). If empty, IAM roles will be used.",
+    "ui:widget": "JsInput"
+  },
+  "awsSecretKey": {
+    "ui:widget": "JsInput",
+    "ui:placeholder": "Enter secret key (optional). If empty, IAM roles will be used."
+  },
+  "awsSecret": {
+    "ui:widget": "ApiLookupWithCreate",
+    "ui:options": {
+      "createType": "secret",
+      "typeName": "API key & secret key",
+      "url": "/system/secrets?type=keypair",
+      "createUrl": "/settings/secrets",
+      "valueProp": "id",
+      "secretType": "keypair"
+    }
+  },
+  "assumeRoleArn": {
+    "ui:placeholder": "Enter AssumeRole ARN."
+  },
+  "assumeRoleExternalId": {
+    "ui:placeholder": "Enter external ID."
+  },
+  "durationSeconds": {
+    "ui:placeholder": "Enter a duration for the session"
+  },
+  "rejectUnauthorized": {
+    "ui:options": {
+      "inline": true
+    }
+  },
+  "reuseConnections": {
+    "ui:options": {
+      "inline": true
+    }
+  },
+  "verifyPermissions": {
+    "ui:options": {
+      "inline": true
+    }
+  },
+  "ui:options": {
+    "groups": {
+      "authentication": {
+        "title": "Authentication",
+        "collapsed": true,
+        "properties": [
+          "awsAuthenticationMethod",
+          "awsApiKey",
+          "awsSecretKey",
+          "awsSecret"
+        ]
+      },
+      "assumeRole": {
+        "title": "Assume Role",
+        "collapsed": true,
+        "properties": [
+          "enableAssumeRole",
+          "assumeRoleArn",
+          "assumeRoleExternalId",
+          "assumeRoleDurationSeconds"
+        ]
       }
     }
   }

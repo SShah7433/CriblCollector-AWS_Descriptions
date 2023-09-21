@@ -7,6 +7,8 @@ exports.destroyable = false;
 const { Readable, Transform } = require("stream");
 const logger = C.util.getLogger("aws-description-collector");
 
+const { STSClient, AssumeRoleCommand } = require("./node_modules/@aws-sdk/client-sts")
+
 const {
   CloudFrontClient,
   paginateListDistributions,
@@ -71,9 +73,19 @@ const {
   ListBucketsCommand
 } = require("./node_modules/@aws-sdk/client-s3")
 
-let batch_size;
+let batchSize;
 let regions;
 let endpoints;
+
+let awsAuthenticationMethod;
+let enableAssumeRole;
+
+let awsApiKey;
+let awsSecretKey;
+let awsSessionToken;
+let assumeRoleArn;
+let assumeRoleExternalId;
+let assumeRoleDurationSeconds;
 
 exports.init = async (opts) => {
   logger.info("init called", { opts, discoverData: opts.conf.discoverData });
@@ -86,7 +98,17 @@ exports.init = async (opts) => {
 
   regions = conf.regions || [];
   endpoints = conf.endpoints || [];
-  batch_size = conf.batch_size || 25;
+  batchSize = conf.batchSize || 100;
+  awsAuthenticationMethod = conf.awsAuthenticationMethod || "auto";
+  enableAssumeRole = conf.enableAssumeRole || false;
+  
+  awsApiKey = conf.awsApiKey || "";
+  awsSecretKey = conf.awsSecretKey || "";
+
+  assumeRoleArn = conf.assumeRoleArn || "";
+  assumeRoleExternalId = conf.assumeRoleExternalId || "";
+  assumeRoleDurationSeconds = conf.assumeRoleDurationSeconds || 900;
+
 };
 
 // Return discoverItems from init, each item will result in a collect task.
@@ -116,12 +138,43 @@ exports.collect = async (collectible, job) => {
 
   var clientConfig = { region: collectible.region }
   var commandConfig = {};
-  var paginatorConfig = { pageSize: batch_size };
+  var paginatorConfig = { pageSize: batchSize };
 
   var client = null;
   var command = null;
   var paginator = null;
 
+  // Authentication
+
+  // Get access key and secret key
+  if (awsAuthenticationMethod === "auto") {
+    if (enableAssumeRole === true) {
+      client = new STSClient(clientConfig);
+      command = new AssumeRoleCommand({
+        RoleArn: assumeRoleArn,
+        RoleSessionName: "cribl_collector_aws_descriptions",
+        ExternalId: assumeRoleExternalId,
+        DurationSeconds: 900
+      });
+
+      const authResponse = await client.send(command);
+      awsApiKey = authResponse.Credentials.AccessKeyId;
+      awsSecretKey = authResponse.Credentials.SecretAccessKey;
+      awsSessionToken = authResponse.Credentials.SessionToken;
+    }
+  }
+
+  // Add credentials to client configuration if needed
+  if (awsAuthenticationMethod !== "auto" || enableAssumeRole === true) {
+    const awsCredentials = {
+      accessKeyId: awsApiKey,
+      secretAccessKey: awsSecretKey,
+      ...(awsSessionToken) && {sessionToken : awsSessionToken}  // Set sessionToken only if it exists
+    };
+    Object.assign(clientConfig, {credentials: awsCredentials})
+  }
+
+  // Setup collection based on endpoint
   switch (collectible.endpoint) {
     case "cloudfront_listDistributions":
       Object.assign(paginatorConfig, {client: new CloudFrontClient(clientConfig)});

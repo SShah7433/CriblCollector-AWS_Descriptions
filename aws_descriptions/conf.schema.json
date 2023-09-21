@@ -1,7 +1,11 @@
 {
   "type": "object",
   "title": "",
-  "required": ["endpoints", "regions"],
+  "required": [
+    "awsAuthenticationMethod",
+    "endpoints",
+    "regions"
+  ],
   "properties": {
     "endpoints": {
       "type": "array",
@@ -133,10 +137,113 @@
         ]
       }
     },
-    "batch_size": {
+    "awsAuthenticationMethod": {
+      "type": "string",
+      "title": "Authentication Method",
+      "description": "AWS authentication method. Choose Auto to use IAM roles.",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "manual",
+        "secret"
+      ],
+      "enumNames": [
+        "Auto",
+        "Manual",
+        "Secret Key pair"
+      ]
+    },
+    "enableAssumeRole": {
+      "type": "boolean",
+      "title": "Enable Assume Role",
+      "description": "Use AssumeRole credentials",
+      "default": false
+    },
+    "batchSize": {
       "type": "number",
       "title": "API Batch Size",
+      "default": 100,
       "description": "Number of results to pull per API call (does not apply to endpoints that do not support pagination)"
+    }
+  },
+  "dependencies": {
+    "awsAuthenticationMethod": {
+      "oneOf": [
+        {
+          "properties": {
+            "awsAuthenticationMethod": {
+              "enum":["auto"]
+            }
+          }
+        },
+        {
+          "properties": {
+            "awsAuthenticationMethod": {"enum": ["manual"]},
+            "awsApiKey": {
+              "type": "string",
+              "title": "Access key",
+              "description": "Access key. If not present, will fall back to env.AWS_ACCESS_KEY_ID, or to the metadata endpoint for IAM creds. Optional when running on AWS. This value can be a constant or a JavaScript expression."
+            },
+            "awsSecretKey": {
+              "type": "string",
+              "title": "Secret key",
+              "description": "Secret key. If not present, will fall back to env.AWS_SECRET_ACCESS_KEY, or to the metadata endpoint for IAM creds. Optional when running on AWS. This value can be a constant or a JavaScript expression.",
+              "encrypt": true
+            }
+          }
+        },
+        {
+          "properties": {
+            "awsAuthenticationMethod": {"enum": ["secret"]},
+            "awsSecret": {
+              "type": "string",
+              "title": "Secret key pair",
+              "secret": {"target": ["awsApiKey", "awsSecretKey"], "type": "keypair"},
+              "description": "Select (or create) a stored secret that references AWS access key and secret key."
+            }
+          }
+        }
+      ]
+    },
+    "enableAssumeRole": {
+      "oneOf": [
+        {
+          "properties": {
+            "enableAssumeRole": {
+              "enum": [true]
+            },
+            "assumeRoleArn": {
+              "type": "string",
+              "title": "AssumeRole ARN",
+              "description": "Amazon Resource Name (ARN) of the role to assume",
+              "pattern": "^arn:",
+              "minLength": 20
+            },
+            "assumeRoleExternalId": {
+              "type": "string",
+              "title": "External ID",
+              "description": "External ID to use when assuming role"
+            },
+            "assumeRoleDurationSeconds": {
+              "type": "number",
+              "title": "Duration (seconds)",
+              "description": "Duration of the Assumed Role's session, in seconds. Minimum is 900 (15 minutes), default is 3600 (1 hour), and maximum is 43200 (12 hours).",
+              "minimum": 900,
+              "maximum": 43200,
+              "default": 3600
+            }
+          }
+        },
+        {
+          "properties": {
+            "useAuth": {
+              "enum": [
+                false
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }
