@@ -38,7 +38,7 @@ const {
 
 // imports prepended with ELBv2 to indicate v2
 const {
-  ElasticLoadBalancingClient: ELBv2_ElasticLoadBalancingClient,
+  ElasticLoadBalancingV2Client: ELBv2_ElasticLoadBalancingClient,
   DescribeTagsCommand: ELBv2_DescribeTagsCommand,
   DescribeTargetHealthCommand: ELBv2_DescribeTargetHealthCommand,
   paginateDescribeListeners: ELBv2_paginateDescribeListeners,
