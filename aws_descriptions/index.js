@@ -209,23 +209,23 @@ exports.collect = async (collectible, job) => {
       break;
     case "iam_listAttachedUserPolicies":
       Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
-      command = new paginateListAttachedUserPolicies(paginatorConfig, commandConfig);
+      paginator = paginateListAttachedUserPolicies(paginatorConfig, commandConfig);
       break;
     case "iam_listGroups":
       Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
-      command = new paginateListGroups(paginatorConfig, commandConfig);
+      paginator = paginateListGroups(paginatorConfig, commandConfig);
       break;
     case "iam_listPolicies":
       Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
-      command = new paginateListPolicies(paginatorConfig, commandConfig);
+      paginator = paginateListPolicies(paginatorConfig, commandConfig);
       break;
     case "iam_listRoles":
       Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
-      command = new paginateListRoles(paginatorConfig, commandConfig);
+      paginator = paginateListRoles(paginatorConfig, commandConfig);
       break;
     case "iam_listUsers":
       Object.assign(paginatorConfig, {client: new IAMClient(clientConfig)});
-      command = new paginateListUsers(paginatorConfig, commandConfig);
+      paginator = paginateListUsers(paginatorConfig, commandConfig);
       break;
     case "lambda_listFunctions":
       Object.assign(paginatorConfig, {client: new LambdaClient(clientConfig)});
