@@ -4,7 +4,7 @@
   "minRawLength": 256,
   "rules": [
     {
-      "condition": "/DistributionList/m.test(_raw) && /Items/m.test(_raw)",
+      "condition": "__collectible.endpoint=='cloudfront_listDistributions'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -24,7 +24,7 @@
       "name": "CloudFront - List Distributions"
     },
     {
-      "condition": "/Addresses/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeAddresses'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -44,7 +44,7 @@
       "name": "EC2 - Describe Addresses"
     },
     {
-      "condition": "/Images/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeImages'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -64,7 +64,7 @@
       "name": "EC2 - Describe Images"
     },
     {
-      "condition": "/Reservations/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeInstances'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -84,7 +84,7 @@
       "name": "EC2 - Describe Instances"
     },
     {
-      "condition": "/KeyPairs/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeKeyPairs'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -104,7 +104,7 @@
       "name": "EC2 - Describe Key Pairs"
     },
     {
-      "condition": "/NetworkAcls/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeNetworkAcls'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -124,7 +124,7 @@
       "name": "EC2 - Describe Network ACLs"
     },
     {
-      "condition": "/Regions/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeRegions'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -144,7 +144,7 @@
       "name": "EC2 - Describe Regions"
     },
     {
-      "condition": "/ReservedInstances/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeReservedInstances'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -164,7 +164,7 @@
       "name": "EC2 - Describe Reserved Instances"
     },
     {
-      "condition": "/SecurityGroups/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeSecurityGroups'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -184,7 +184,7 @@
       "name": "EC2 - Describe Security Groups"
     },
     {
-      "condition": "/Snapshots/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeSnapshots'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -204,7 +204,7 @@
       "name": "EC2 - Describe Snapshots"
     },
     {
-      "condition": "/Subnets/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeSubnets'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -224,7 +224,27 @@
       "name": "EC2 - Describe Subnets"
     },
     {
-      "condition": "/Vpcs/m.test(_raw)",
+      "condition": "__collectible.endpoint=='ec2_describeVolumes'",
+      "type": "json_array",
+      "timestampAnchorRegex": "/^/",
+      "timestamp": {
+        "type": "current",
+        "length": 150
+      },
+      "timestampTimezone": "local",
+      "timestampEarliest": "-420weeks",
+      "timestampLatest": "+1week",
+      "maxEventBytes": 51200,
+      "disabled": false,
+      "parserEnabled": false,
+      "shouldUseDataRaw": false,
+      "jsonExtractAll": false,
+      "eventBreakerRegex": "/[\\n\\r]+(?!\\s)/",
+      "jsonArrayField": "Volumes",
+      "name": "EC2 - Describe Volumes"
+    },
+    {
+      "condition": "__collectible.endpoint=='ec2_describeVpcs'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -244,27 +264,7 @@
       "name": "EC2 - Describe VPCs"
     },
     {
-      "condition": "/LoadBalancerDescriptions/m.test(_raw)",
-      "type": "json_array",
-      "timestampAnchorRegex": "/^/",
-      "timestamp": {
-        "type": "current",
-        "length": 150
-      },
-      "timestampTimezone": "local",
-      "timestampEarliest": "-420weeks",
-      "timestampLatest": "+1week",
-      "maxEventBytes": 51200,
-      "disabled": false,
-      "parserEnabled": false,
-      "shouldUseDataRaw": false,
-      "jsonExtractAll": false,
-      "eventBreakerRegex": "/[\\n\\r]+(?!\\s)/",
-      "jsonArrayField": "LoadBalancerDescriptions",
-      "name": "ELB - Describe Load Balancers"
-    },
-    {
-      "condition": "/InstanceStates/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elb_describeInstanceHealth'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -284,7 +284,27 @@
       "name": "ELB - Describe Instance Health"
     },
     {
-      "condition": "/TagDescriptions/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elb_describeLoadBalancers'",
+      "type": "json_array",
+      "timestampAnchorRegex": "/^/",
+      "timestamp": {
+        "type": "current",
+        "length": 150
+      },
+      "timestampTimezone": "local",
+      "timestampEarliest": "-420weeks",
+      "timestampLatest": "+1week",
+      "maxEventBytes": 51200,
+      "disabled": false,
+      "parserEnabled": false,
+      "shouldUseDataRaw": false,
+      "jsonExtractAll": false,
+      "eventBreakerRegex": "/[\\n\\r]+(?!\\s)/",
+      "jsonArrayField": "LoadBalancerDescriptions",
+      "name": "ELB - Describe Load Balancers"
+    },
+    {
+      "condition": "__collectible.endpoint=='elb_describeTags'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -301,10 +321,10 @@
       "jsonExtractAll": false,
       "eventBreakerRegex": "/[\\n\\r]+(?!\\s)/",
       "jsonArrayField": "TagDescriptions",
-      "name": "ELB/ELBv2 - Describe Tags"
+      "name": "ELB - Describe Tags"
     },
     {
-      "condition": "/Listeners/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elbv2_describeListeners'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -324,7 +344,7 @@
       "name": "ELBv2 - Describe Listeners"
     },
     {
-      "condition": "/LoadBalancers/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elbv2_describeLoadBalancers'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -344,7 +364,27 @@
       "name": "ELBv2 - Describe Load Balancers"
     },
     {
-      "condition": "/TargetGroups/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elbv2_describeTags'",
+      "type": "json_array",
+      "timestampAnchorRegex": "/^/",
+      "timestamp": {
+        "type": "current",
+        "length": 150
+      },
+      "timestampTimezone": "local",
+      "timestampEarliest": "-420weeks",
+      "timestampLatest": "+1week",
+      "maxEventBytes": 51200,
+      "disabled": false,
+      "parserEnabled": false,
+      "shouldUseDataRaw": false,
+      "jsonExtractAll": false,
+      "eventBreakerRegex": "/[\\n\\r]+(?!\\s)/",
+      "jsonArrayField": "TagDescriptions",
+      "name": "ELBv2 - Describe Tags"
+    },
+    {
+      "condition": "__collectible.endpoint=='elbv2_describeTargetGroups'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -364,7 +404,7 @@
       "name": "ELBv2 - Describe Target Groups"
     },
     {
-      "condition": "/TargetHealthDescriptions/m.test(_raw)",
+      "condition": "__collectible.endpoint=='elbv2_describeTargetHealth'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -384,7 +424,7 @@
       "name": "ELBv2 - Describe Target Health"
     },
     {
-      "condition": "/AttachedPolicies/m.test(_raw)",
+      "condition": "__collectible.endpoint=='iam_listAttachedUserPolicies'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -404,7 +444,7 @@
       "name": "IAM - List Attached User Policies"
     },
     {
-      "condition": "/Groups/m.test(_raw)",
+      "condition": "__collectible.endpoint=='iam_listGroups'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -424,7 +464,7 @@
       "name": "IAM - List Groups"
     },
     {
-      "condition": "/Policies/m.test(_raw)",
+      "condition": "__collectible.endpoint=='iam_listPolicies'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -444,7 +484,7 @@
       "name": "IAM - List Policies"
     },
     {
-      "condition": "/Roles/m.test(_raw)",
+      "condition": "__collectible.endpoint=='iam_listRoles'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -464,7 +504,7 @@
       "name": "IAM - List Roles"
     },
     {
-      "condition": "/Users/m.test(_raw)",
+      "condition": "__collectible.endpoint=='iam_listUsers'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -484,7 +524,7 @@
       "name": "IAM - List Users"
     },
     {
-      "condition": "/Functions/m.test(_raw)",
+      "condition": "__collectible.endpoint=='lambda_listFunctions'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -504,7 +544,7 @@
       "name": "Lambda - List Functions"
     },
     {
-      "condition": "/DBInstances/m.test(_raw)",
+      "condition": "__collectible.endpoint=='rds_describeDbInstances'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -524,7 +564,7 @@
       "name": "RDS - Describe DB Instances"
     },
     {
-      "condition": "/ReservedDBInstances/m.test(_raw)",
+      "condition": "__collectible.endpoint=='rds_describeReservedDbInstances'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
@@ -544,7 +584,7 @@
       "name": "RDS - Describe Reserved DB Instances"
     },
     {
-      "condition": "/Buckets/m.test(_raw)",
+      "condition": "__collectible.endpoint=='s3_listBuckets'",
       "type": "json_array",
       "timestampAnchorRegex": "/^/",
       "timestamp": {
