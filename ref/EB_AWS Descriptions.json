@@ -604,6 +604,6 @@
       "name": "S3 - List Buckets"
     }
   ],
-  "tags": "AWS",
+  "tags": "aws",
   "description": "Event breaking rules for AWS Descriptions"
 }
